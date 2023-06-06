@@ -1,3 +1,5 @@
+import os
+
 from fastapi import FastAPI, Request, Depends, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from router.productrouter import routerproduct
@@ -31,6 +33,9 @@ app.include_router(routermarketplace)
 app.include_router(routeruser)
 app.include_router(routerprice)
 
+PORT = 8000
+if os.environ.get('port') is not None:
+    PORT = os.environ['port']
+
 if __name__ == "__main__":
-    uvicorn.run("main:app", reload=True, port=8000, host='192.168.0.106')
-    #uvicorn.run("main:app", reload=True, port=8000, host='186.251.15.106')
+    uvicorn.run("main:app", reload=True, port=PORT)
