@@ -28,8 +28,9 @@ class ScrapyProduct:
 
             if drivername == 'firefox':
                 fireFoxOptions: FirefoxOptions = webdriver.FirefoxOptions()
-                fireFoxOptions.add_argument('-headless')
-                driver = webdriver.Firefox(options=fireFoxOptions)
+                fireFoxOptions.add_argument('--headless')
+                path_geckodriver = os.path.join(os.path.dirname(__file__), 'geckodriver')
+                driver = webdriver.Firefox(options=fireFoxOptions, executable_path=path_geckodriver)
             else:
                 #chromeOptions: ChromeOptions = webdriver.ChromeOptions()
                 driver = webdriver.Chrome()
