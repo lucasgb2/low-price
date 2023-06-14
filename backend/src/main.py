@@ -13,17 +13,13 @@ else:
     from dotenv import load_dotenv
     load_dotenv()
 
-origins = ["http://localhost",
-           "http://localhost:8080",
-           "http://192.168.0.106:8000"]
 app = FastAPI()
-
 
 @app.get('/api/v1/lowprice')
 async def fn():
     return {'api': 'lowprice'}
 
-
+origins = ["*"]
 app.add_middleware(CORSMiddleware,
                    allow_origins=origins,
                    allow_credentials=True,
@@ -34,7 +30,8 @@ app.include_router(routermarketplace)
 app.include_router(routeruser)
 app.include_router(routerprice)
 
-PORT = int(os.environ['PORTAPI'])
+PORTAPI = int(os.environ['PORTAPI'])
 
-if __name__ == "__main__":
-    uvicorn.run("main:app", reload=True, port=PORT)
+if os.environ.get('ENV') and os.environ['ENV'] == 'DEV':
+    if __name__ == "__main__":
+        uvicorn.run("main:app", reload=True, port=PORTAPI)
