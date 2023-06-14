@@ -1,19 +1,14 @@
 from model.pricemodel import Price
-from dao import pricedao
-from sqlalchemy.orm import Session
+from dao.pricedao import PriceDAO
+from fastapi.responses import JSONResponse
 
 
 class PriceBusiness:
 
-    def __init__(self, session: Session):
-        self.session: Session = session
+    async def save(self, price: Price):
+        saved = await PriceDAO.factory().save_price(price)
+        return saved
 
-    def save(self, price: Price) -> Price:
-        saved = pricedao.save_price(self.session, price)
-        if saved:
-            return saved
-        else:
-            return None
-
-def getBusinessPrice(session: Session):
-    return PriceBusiness(session)
+    @classmethod
+    def factory(self):
+        return PriceBusiness()

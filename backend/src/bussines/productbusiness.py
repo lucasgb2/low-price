@@ -1,67 +1,59 @@
 from typing import List
 from model.productmodel import Product
 from model.pricemodel import Price
-from database.schemas import ProductSchema
+from model.gtinmodel import Gtin
 from service.scrapyproduct import ScrapyProduct
-from dao import productdao, pricedao
-from sqlalchemy.orm import Session
-from fastapi.encoders import jsonable_encoder
-
+from dao.productdao import ProductDAO
+from dao.pricedao import PriceDAO
+from fastapi.responses import JSONResponse
 
 
 class ProductBusiness:
 
-    def __init__(self, session: Session):
-        self.session: Session = session
 
-    async def save(self, product: Product) -> Product:
-        product_saved = productdao.get_product_by_gtin(self.session, product.gtin)
+    async def save(self, gtin: Gtin) -> Product:
+        product_saved : Product = await ProductDAO.factory().get_product_by_gtin(gtin.gtin)
         if product_saved:
             return product_saved
         else:
-            new_product: Product = await self.__fill_product_information(product)
-            new_product.gtin = product.gtin
-            new_product.linkimage = product.linkimage
-            new_product.ncmDescription = product.ncmDescription
-            new_product = productdao.save_product(self.session, new_product)
-            return new_product
+            new_product: Product = await self.__fill_product_information(gtin)
+            product_saved = await ProductDAO.factory().save_product(new_product)
+            return product_saved
 
-    async def __fill_product_information(self, product: Product) -> Product:
-        scrapy: ScrapyProduct = ScrapyProduct(product.gtin)
+    async def __fill_product_information(self, gtin: Gtin) -> Product:
+        scrapy: ScrapyProduct = ScrapyProduct(gtin.gtin)
         await scrapy.fill()
+        product: Product = Product()
+        product.gtin = gtin.gtin
         product.description = scrapy.description
         product.ncm = scrapy.ncm
         product.linkimage = scrapy.linkImage
         product.ncmDescription = scrapy.ncmdescription
         return product
 
-    def get_product_by_gtin(self, gtin: str) -> Product:
-        return productdao.get_product_by_gtin(self.session, gtin)
+    async def get_product_by_gtin(self, gtin: str):
+        product =  await ProductDAO.factory().get_product_by_gtin(gtin)
+        return product
 
-    def get_product_all(self) -> List[Product]:
-        productsmaxmin: List[ProductSchema] = productdao.get_product_all(self.session)
+    async def get_product_all(self) -> List[Product]:
+        productsmaxmin: List[Product] = await ProductDAO.factory().get_product_all()
         products = []
         for p in productsmaxmin:
-            prices = self.__get_maxmin_price_by_product(p.id)
-            for price in prices:
-                if price['type'] == 'max':
-                    p.pricemax = price['price']
-                elif price['type'] == 'min':
-                    p.pricemin = price['price']
+            p_max = await PriceDAO.factory().get_max_price_by_product(p['_id'])
+            p_min = await PriceDAO.factory().get_min_price_by_product(p['_id'])
+            p['pricemax'] = p_max
+            p['pricemin'] = p_min
             products.append(p)
+
         return products
 
-    def get_price_by_product(self, gtin: str) -> List[Price]:
-        p: Product = self.get_product_by_gtin(gtin)
-        return pricedao.get_price_by_product(self.session, p.id)
 
-    def get_maxmin_price_by_gtin(self, gtin: str) -> List[Price]:
-        p: Product = self.get_product_by_gtin(gtin)
-        r = self.__get_max_min_price_by_product(self.session, p.id)
-        return r
+    async def get_price_by_gtin(self, gtin: str) -> List[Price]:
+        product : Product = await ProductDAO.factory().get_product_by_gtin(gtin)
+        price = await PriceDAO.factory().get_price_by_idproduct(product.toid())
+        return price
 
-    def __get_maxmin_price_by_product(self, id_product: int) -> List[Price]:
-        return pricedao.get_max_min_price_by_product(self.session, id_product)
+    @classmethod
+    def factory(self):
+        return ProductBusiness()
 
-def getProductBusiness(session: Session) -> ProductBusiness:
-    return ProductBusiness(session)

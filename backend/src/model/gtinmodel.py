@@ -1,22 +1,15 @@
 from pydantic import BaseModel, validator, Field
 from typing import Optional
 from gtin.validator import is_valid_GTIN
-from uuid import UUID, uuid4
+from model.idfield import IdField
 
-class Product(BaseModel):
-    id: UUID = Field(default_factory=uuid4, alias='_id')
-    description: str = Optional[str]
-    gtin: str = Optional[str]
-    ncm: str = Optional[str]
-    ncmDescription: str = Optional[str]
-    linkimage: str = Optional[str]
-
-    def toid(self):
-        return self.id.urn[9:]
+class Gtin(BaseModel):
+    gtin: str = Field(...)
 
     class Config:
         allow_population_by_field_name = True
         arbitrary_types_allowed = True
+        json_encoders = {IdField: str}
 
     @validator('gtin')
     def gtin_validator(cls, v):

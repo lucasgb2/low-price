@@ -1,14 +1,22 @@
-from sqlalchemy.orm import Session
-from database import dbconnection, schemas
 from model.usermodel import User
+from dao.basedao import BaseDAO
+from fastapi.encoders import jsonable_encoder
 
 
-def save_user(session: Session, user: User):
-    u = schemas.UserSchema(**user.dict())
-    session.add(u)
-    session.commit()
-    session.refresh(u)
-    return
+class UserDAO(BaseDAO):
 
-def get_user_byemail(session: Session, email:str):
-    return session.query(schemas.UserSchema).filter(schemas.UserSchema.email == email).first()
+    def __init__(self):
+        self.collection_name = 'users'
+
+    @classmethod
+    def factory(self):
+        return UserDAO()
+
+    async def save_user(self, user: User) -> User:
+        saved = await self.collection().insert_one(jsonable_encoder(user))
+        saved = await self.collection().find_one(self.q('_id', saved.inserted_id))
+        return saved
+
+    async def get_user_byemail(self, email: str) -> User:
+        saved = await self.collection().find_one(self.q('email', email))
+        return saved

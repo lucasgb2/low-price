@@ -1,7 +1,9 @@
 import asyncio
 from selenium import webdriver
+from selenium.webdriver import ChromeOptions, FirefoxOptions
 from selenium.webdriver.common.by import By
 from selenium.webdriver.remote.webelement import WebElement
+import os
 
 
 class ScrapyProduct:
@@ -17,10 +19,30 @@ class ScrapyProduct:
     def get_url(self):
         return self.urlscrapy.format(self.gtin)
 
+    def getDriver(self):
+        try:
+            driver = None
+            drivername: str = 'firefox'
+            if os.environ.get('DRIVERSCRAPY') is not None:
+                drivername = os.environ['DRIVERSCRAPY']
+
+            if drivername == 'firefox':
+                fireFoxOptions: FirefoxOptions = webdriver.FirefoxOptions()
+                fireFoxOptions.add_argument('-headless')
+                driver = webdriver.Firefox(options=fireFoxOptions)
+            else:
+                #chromeOptions: ChromeOptions = webdriver.ChromeOptions()
+                driver = webdriver.Chrome()
+
+            return driver
+        except NameError:
+            print(NameError)
+            raise NameError
+
 
     async def __get_data(self):
         try:
-            driver = webdriver.Chrome()
+            driver = self.getDriver()
             driver.get(self.get_url())
             elem = driver.find_element(By.ID, 'product_description')
             if elem:
@@ -40,7 +62,8 @@ class ScrapyProduct:
             if elem:
                 self.linkImage = elem.get_attribute('src')
 
-        except:
+        except NameError:
+            print(NameError.name)
             self.description: str = 'PRODUTO NÃO CATALOGADO'
 
     async def __execute(self):

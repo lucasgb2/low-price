@@ -1,16 +1,17 @@
 from model.usermodel import User
-from dao import userdao
-from sqlalchemy.orm import Session
-
+from dao.userdao import UserDAO
+from fastapi.responses import JSONResponse
+from fastapi import status
 
 class UserBusiness:
+    @classmethod
+    def factory(self):
+        return UserBusiness()
 
-    def save(self, session: Session, user: User) -> User:
-        user_saved = userdao.save_user(session, user)
-        if user_saved:
-            return user_saved
-        else:
-            return None
+    async def save(self, user: User):
+        saved = await UserDAO.factory().save_user(user)
+        return JSONResponse(status_code=status.HTTP_201_CREATED, content=saved)
 
-    def get_byemail(self, session: Session, email:str):
-        return userdao.get_user_byemail(session, email)
+    async def get_byemail(self, email:str):
+        user = await UserDAO.factory().get_user_byemail(email)
+        return JSONResponse(status_code=status.HTTP_200_OK, content=user)

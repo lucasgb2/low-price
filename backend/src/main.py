@@ -1,16 +1,14 @@
-import os
-
-from fastapi import FastAPI, Request, Depends, HTTPException
+from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from router.productrouter import routerproduct
 from router.marketplacerouter import routermarketplace
 from router.userrouter import routeruser
 from router.pricerouter import routerprice
-from database import dbconnection, schemas
+from dotenv import load_dotenv
 import uvicorn
-import time
+import os
 
-schemas.Base.metadata.create_all(bind=dbconnection.engine)
+load_dotenv()
 
 origins = ["http://localhost",
            "http://localhost:8080",
@@ -18,9 +16,9 @@ origins = ["http://localhost",
 app = FastAPI()
 
 
-@app.get('/')
+@app.get('/api/v1/lowprice')
 async def fn():
-    return {'fn': 'ok'}
+    return {'api': 'lowprice'}
 
 
 app.add_middleware(CORSMiddleware,
@@ -33,9 +31,7 @@ app.include_router(routermarketplace)
 app.include_router(routeruser)
 app.include_router(routerprice)
 
-PORT = 8000
-if os.environ.get('port') is not None:
-    PORT = os.environ['port']
+PORT = int(os.environ['PORTAPI'])
 
 if __name__ == "__main__":
     uvicorn.run("main:app", reload=True, port=PORT)

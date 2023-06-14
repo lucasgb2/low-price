@@ -1,18 +1,28 @@
-from sqlalchemy.orm import Session
-from database import dbconnection, schemas
 from model.productmodel import Product
-
-def get_product_by_gtin(session: Session, gtin: str):
-    return session.query(schemas.ProductSchema).filter(schemas.ProductSchema.gtin == gtin).first()
+from dao.basedao import BaseDAO
 
 
-def get_product_all(session: Session):
-    return session.query(schemas.ProductSchema).all()
+class ProductDAO(BaseDAO):
 
+    def __init__(self):
+        self.collection_name = 'products'
 
-def save_product(session: Session, product: Product):
-    p = schemas.ProductSchema(**product.dict())
-    session.add(p)
-    session.commit()
-    session.refresh(p)
-    return p
+    async def get_product_by_gtin(self, gtin: str) -> Product:
+        r = await self.collection().find_one(self.q('gtin', gtin))
+        if r is not None:
+            return Product(**r)
+        else:
+            return None
+
+    async def get_product_all(self):
+        return await self.collection().find().to_list(1000)
+
+    async def save_product(self, product: Product):
+        k = self.tojson(product)
+        saved = await self.collection().insert_one(k)
+        saved = await self.collection().find_one(self.qid(saved.inserted_id))
+        return saved
+
+    @classmethod
+    def factory(self):
+        return ProductDAO()

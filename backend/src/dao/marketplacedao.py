@@ -1,13 +1,23 @@
-from sqlalchemy.orm import Session
-from database import dbconnection, schemas
 from model.marketplacemodel import Marketplace
+from dao.basedao import BaseDAO
 
-def get_marketplace_by_placeid(session: Session, place_id: int) -> Marketplace:
-    return session.query(schemas.MarketplaceSchema).filter(schemas.MarketplaceSchema.place_id == place_id).first()
+class MarketplaceDAO(BaseDAO):
 
-def save_marketplace(session: Session, marketplace: Marketplace):
-    m = schemas.MarketplaceSchema(**marketplace.dict())
-    session.add(m)
-    session.commit()
-    session.refresh(m)
-    return m
+    def __init__(self):
+        self.collection_name = 'marketplaces'
+
+    async def get_marketplace_by_placeid(self, place_id: int):
+        place =  await self.collection().find_one(self.q('place_id', place_id))
+        return place
+
+    async def save_marketplace(self, marketplace: Marketplace):
+        saved = await self.collection().insert_one(marketplace)
+        saved = await self.collection().find_one(self.qid(saved.inserted_id))
+        return saved
+
+    async def get_marketplace_all(self):
+        return await self.collection().find().to_list(1000)
+
+    @classmethod
+    def factory(self):
+        return MarketplaceDAO()
