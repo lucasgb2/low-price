@@ -12,7 +12,7 @@ class GeoPlaceService:
 
 
     async def __get_data(self):
-        geoLoc = Nominatim(user_agent="GetLoc")
+        geoLoc = Nominatim(user_agent="render_app-low-price")
         address = geoLoc.reverse(f'{self.longitude}, {self.latitude}')
 
         print(address.raw)
