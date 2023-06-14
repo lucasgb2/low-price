@@ -4,11 +4,14 @@ from router.productrouter import routerproduct
 from router.marketplacerouter import routermarketplace
 from router.userrouter import routeruser
 from router.pricerouter import routerprice
-from dotenv import load_dotenv
 import uvicorn
 import os
 
-load_dotenv()
+if os.environ.get('ENV') and os.environ['ENV'] == 'PROD':
+    print('Run App PROD')
+else:
+    from dotenv import load_dotenv
+    load_dotenv()
 
 origins = ["http://localhost",
            "http://localhost:8080",
