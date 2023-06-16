@@ -23,7 +23,7 @@ def get_connector():
     host = get_envvar('HOSTMONGO')
 
     if True:
-        connector = motor.motor_asyncio.AsyncIOMotorClient(f"mongodb+srv://{db}:{password}@{host}/?retryWrites=true&w=majority")
+        connector = motor.motor_asyncio.AsyncIOMotorClient(f"mongodb+srv://{user}:{password}@{host}/?retryWrites=true&w=majority")
         c = connector[db]
         return c
     else:

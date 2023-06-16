@@ -50,7 +50,7 @@ class ProductBusiness:
 
     async def get_price_by_gtin(self, gtin: str) -> List[Price]:
         product : Product = await ProductDAO.factory().get_product_by_gtin(gtin)
-        price = await PriceDAO.factory().get_price_by_idproduct(product.toid())
+        price = await PriceDAO.factory().get_price_by_idproduct(product.to_id())
         return price
 
     @classmethod

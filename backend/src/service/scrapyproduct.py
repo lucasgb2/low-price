@@ -24,7 +24,7 @@ class ScrapyProduct:
     def getDriver(self):
         try:
             driver = None
-            driver_name: str = 'chrome'
+            driver_name: str = 'firefox'
             if os.environ.get('DRIVERSCRAPY') is not None:
                 driver_name = os.environ['DRIVERSCRAPY']
 

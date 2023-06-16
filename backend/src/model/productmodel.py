@@ -11,7 +11,7 @@ class Product(BaseModel):
     ncmDescription: str = Optional[str]
     linkimage: str = Optional[str]
 
-    def toid(self):
+    def to_id(self):
         return self.id.urn[9:]
 
     class Config:
