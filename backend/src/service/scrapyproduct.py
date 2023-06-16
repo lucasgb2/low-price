@@ -1,6 +1,7 @@
 import asyncio
 from selenium import webdriver
 from selenium.webdriver import ChromeOptions, FirefoxOptions
+from selenium.webdriver.firefox.firefox_binary import FirefoxBinary
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support import expected_conditions as EC
@@ -33,11 +34,14 @@ class ScrapyProduct:
                 firefox_options.add_argument('-headless')
                 firefox_options.add_argument("-disable-gpu")
                 firefox_options.add_argument("-no-sandbox")
+
                 if os.environ.get("FIREFOX_BIN") is not None:
-                    firefox_options.binary_location = os.environ.get("FIREFOX_BIN")
+                    print('Path Binary: '+os.environ.get("FIREFOX_BIN"))
+                    firefox_options.binary = FirefoxBinary(os.environ.get("FIREFOX_BIN"))
 
                 executable_path = 'geckodriver'
                 if os.environ.get("FIREFOXDRIVER_PATH") is not None:
+                    print('Path Drive: ' + os.environ.get("FIREFOXDRIVER_PATH"))
                     executable_path = os.environ.get("FIREFOXDRIVER_PATH")
 
                 driver = webdriver.Firefox(options=firefox_options, executable_path=executable_path)
