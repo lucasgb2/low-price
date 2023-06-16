@@ -1,0 +1,7 @@
+runtime: image
+
+image:
+  url: docker.io/selenium/standalone-chrome:latest
+  creds:
+    fromRegistryCreds:
+      name: my-credential-name
