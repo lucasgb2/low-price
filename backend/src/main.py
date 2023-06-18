@@ -32,6 +32,5 @@ app.include_router(routerprice)
 
 PORTAPI = int(os.environ['PORTAPI'])
 
-if os.environ.get('ENV') and os.environ['ENV'] == 'DEV':
-    if __name__ == "__main__":
-        uvicorn.run("main:app", reload=True, port=PORTAPI)
+if __name__ == "__main__":
+    uvicorn.run("main:app", host='0.0.0.0', reload=True, port=PORTAPI)
