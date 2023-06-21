@@ -17,19 +17,25 @@ class ProductBusiness:
             return product_saved
         else:
             new_product: Product = await self.__fill_product_information(gtin)
-            product_saved = await ProductDAO.factory().save_product(new_product)
-            return product_saved
+            if new_product is not None:
+                product_saved = await ProductDAO.factory().save_product(new_product)
+                return product_saved
+            else:
+                return None
 
     async def __fill_product_information(self, gtin: Gtin) -> Product:
         scrapy: ScrapyProduct = ScrapyProduct(gtin.gtin)
-        await scrapy.fill()
-        product: Product = Product()
-        product.gtin = gtin.gtin
-        product.description = scrapy.description
-        product.ncm = scrapy.ncm
-        product.linkimage = scrapy.linkImage
-        product.ncmDescription = scrapy.ncmdescription
-        return product
+        try:
+            await scrapy.fill()
+            product: Product = Product()
+            product.gtin = gtin.gtin
+            product.description = scrapy.description
+            product.ncm = scrapy.ncm
+            product.linkimage = scrapy.linkImage
+            product.ncmDescription = scrapy.ncmdescription
+            return product
+        except NameError:
+            return None
 
     async def get_product_by_gtin(self, gtin: str):
         product =  await ProductDAO.factory().get_product_by_gtin(gtin)

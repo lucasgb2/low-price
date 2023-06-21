@@ -25,7 +25,7 @@ class ScrapyProduct:
     def getDriver(self):
         try:
             driver = None
-            driver_name: str = 'firefox'
+            driver_name: str = 'chrome'
             if os.environ.get('DRIVERSCRAPY') is not None:
                 driver_name = os.environ['DRIVERSCRAPY']
 
@@ -47,9 +47,10 @@ class ScrapyProduct:
                 driver = webdriver.Firefox(options=firefox_options, executable_path=executable_path)
             else:
                 chrome_options: ChromeOptions = webdriver.ChromeOptions()
-                chrome_options.add_argument('--headless')
                 chrome_options.add_argument("--disable-dev-shm-usage")
                 chrome_options.add_argument("--no-sandbox")
+                #https://stackoverflow.com/questions/45631715/downloading-with-chrome-headless-and-selenium/73840130#73840130
+                chrome_options.add_argument("--headless=new")
 
                 if os.environ.get("GOOGLE_CHROME_BIN") is not None:
                     chrome_options.binary_location = os.environ.get("GOOGLE_CHROME_BIN")
