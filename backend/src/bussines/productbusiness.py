@@ -14,6 +14,10 @@ class ProductBusiness:
     async def save(self, gtin: Gtin) -> Product:
         product_saved : Product = await ProductDAO.factory().get_product_by_gtin(gtin.gtin)
         if product_saved:
+            pricemax = await PriceDAO.factory().get_max_price_by_product(product_saved.to_id())
+            pricemin = await PriceDAO.factory().get_min_price_by_product(product_saved.to_id())
+            product_saved.pricemax = pricemax
+            product_saved.pricemin = pricemin
             return product_saved
         else:
             new_product: Product = await self.__fill_product_information(gtin)
@@ -50,8 +54,8 @@ class ProductBusiness:
             p['pricemax'] = p_max
             p['pricemin'] = p_min
             products.append(p)
-
         return products
+
 
 
     async def get_price_by_gtin(self, gtin: str) -> List[Price]:

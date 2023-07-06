@@ -72,11 +72,12 @@ class ScrapyProduct:
             driver = self.getDriver()
             driver.get(self.get_url())
             elem = WebDriverWait(driver, 3).until(EC.presence_of_element_located((By.ID, 'product_description')))
-            elem = driver.find_element(By.ID, 'product_description')
+            #elem = driver.find_element(By.ID, 'product_description')
             if elem:
                 self.description = elem.text
 
-            elem: WebElement = driver.find_element(By.CLASS_NAME, 'ncm-name')
+            elem: WebElement = WebDriverWait(driver, 3).until(EC.presence_of_element_located((By.CLASS_NAME, 'ncm-name')))
+            #elem: WebElement = driver.find_element(By.CLASS_NAME, 'ncm-name')
             if elem:
                 self.ncmdescription = elem.text
                 for i, c in enumerate(elem.text):
@@ -86,9 +87,14 @@ class ScrapyProduct:
                         self.ncm = self.ncm + c
                 self.ncm = self.ncm.replace('.', '').replace(' ', '')
 
-            elem = driver.find_element(By.CLASS_NAME, 'product-thumbnail').find_element(By.TAG_NAME, 'img')
+            elem: WebElement = WebDriverWait(driver, 3).until(EC.presence_of_element_located((By.CLASS_NAME, 'product-thumbnail')))
+            # elem = driver.find_element(By.CLASS_NAME, 'product-thumbnail').find_element(By.TAG_NAME, 'img')
             if elem:
-                self.linkImage = elem.get_attribute('src')
+                elem = elem.find_element(By.TAG_NAME, 'img')
+                if elem:
+                    self.linkImage = elem.get_attribute('src')
+                else:
+                    self.linkImage = 'https://cosmos.bluesoft.com.br/assets/ncm/IV-2409d8da52fe4e7872b64988b2feca0a.png'
 
         except NameError:
             print(NameError.name)

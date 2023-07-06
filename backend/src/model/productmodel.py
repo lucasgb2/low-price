@@ -2,6 +2,7 @@ from pydantic import BaseModel, validator, Field
 from typing import Optional
 from gtin.validator import is_valid_GTIN
 from uuid import UUID, uuid4
+from model.pricemodel import Price
 
 class Product(BaseModel):
     id: UUID = Field(default_factory=uuid4, alias='_id')
@@ -10,6 +11,8 @@ class Product(BaseModel):
     ncm: str = Optional[str]
     ncmDescription: str = Optional[str]
     linkimage: str = Optional[str]
+    pricemax: Optional[Price]
+    pricemin: Optional[Price]
 
     def to_id(self):
         return self.id.urn[9:]
