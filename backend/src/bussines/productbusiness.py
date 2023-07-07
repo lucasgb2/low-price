@@ -29,8 +29,8 @@ class ProductBusiness:
 
     async def __fill_product_information(self, gtin: Gtin) -> Product:
         scrapy: ScrapyProduct = ScrapyProduct(gtin.gtin)
-        try:
-            await scrapy.fill()
+        await scrapy.fill()
+        if scrapy.fail == False:
             product: Product = Product()
             product.gtin = gtin.gtin
             product.description = scrapy.description
@@ -38,7 +38,7 @@ class ProductBusiness:
             product.linkimage = scrapy.linkImage
             product.ncmDescription = scrapy.ncmdescription
             return product
-        except NameError:
+        else:
             return None
 
     async def get_product_by_gtin(self, gtin: str):

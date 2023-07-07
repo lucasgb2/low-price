@@ -11,7 +11,7 @@ async def set_product(gtin: Gtin):
     if product is not None:
         return  product
     else:
-        return Response(status_code=400)
+        return Response(status_code=404)
 
 @routerproduct.get("/{gtin}")
 async def get_product(gtin: str):

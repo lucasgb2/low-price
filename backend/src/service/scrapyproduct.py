@@ -6,6 +6,7 @@ from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.remote.webelement import WebElement
+from selenium.common.exceptions import NoSuchElementException
 import os
 
 
@@ -17,6 +18,7 @@ class ScrapyProduct:
         self.ncm: str = ''
         self.linkImage: str = ''
         self.ncmdescription: str = ''
+        self.fail: bool = False
 
 
     def get_url(self):
@@ -71,12 +73,12 @@ class ScrapyProduct:
         try:
             driver = self.getDriver()
             driver.get(self.get_url())
-            elem = WebDriverWait(driver, 3).until(EC.presence_of_element_located((By.ID, 'product_description')))
-            #elem = driver.find_element(By.ID, 'product_description')
+            #elem = WebDriverWait(driver, 2).until(EC.presence_of_element_located((By.ID, 'product_description')))
+            elem = driver.find_element(By.ID, 'product_description')
             if elem:
                 self.description = elem.text
 
-            elem: WebElement = WebDriverWait(driver, 3).until(EC.presence_of_element_located((By.CLASS_NAME, 'ncm-name')))
+            elem: WebElement = WebDriverWait(driver, 2).until(EC.presence_of_element_located((By.CLASS_NAME, 'ncm-name')))
             #elem: WebElement = driver.find_element(By.CLASS_NAME, 'ncm-name')
             if elem:
                 self.ncmdescription = elem.text
@@ -87,7 +89,7 @@ class ScrapyProduct:
                         self.ncm = self.ncm + c
                 self.ncm = self.ncm.replace('.', '').replace(' ', '')
 
-            elem: WebElement = WebDriverWait(driver, 3).until(EC.presence_of_element_located((By.CLASS_NAME, 'product-thumbnail')))
+            elem: WebElement = WebDriverWait(driver, 2).until(EC.presence_of_element_located((By.CLASS_NAME, 'product-thumbnail')))
             # elem = driver.find_element(By.CLASS_NAME, 'product-thumbnail').find_element(By.TAG_NAME, 'img')
             if elem:
                 elem = elem.find_element(By.TAG_NAME, 'img')
@@ -96,9 +98,8 @@ class ScrapyProduct:
                 else:
                     self.linkImage = 'https://cosmos.bluesoft.com.br/assets/ncm/IV-2409d8da52fe4e7872b64988b2feca0a.png'
 
-        except NameError:
-            print(NameError.name)
-            self.description: str = 'PRODUTO NÃO CATALOGADO'
+        except NoSuchElementException:
+            self.fail = True
 
     async def __execute(self):
         try:

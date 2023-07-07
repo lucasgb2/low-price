@@ -1,4 +1,4 @@
-from database.connector_mongodb import get_connector
+from database.connector_mongodb import dbconnection
 from pymongo import MongoClient
 from pymongo.collection import Collection
 from fastapi.encoders import jsonable_encoder
@@ -9,7 +9,7 @@ class BaseDAO:
         self.collection_name = ''
 
     def conn(self) -> MongoClient:
-        return get_connector()
+        return dbconnection.get_connector()
 
     def collection(self) -> Collection:
         return self.conn()[self.collection_name]
