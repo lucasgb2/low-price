@@ -1,8 +1,21 @@
-from pymongo import MongoClient
+from threading import Lock
 from motor.motor_asyncio import AsyncIOMotorClient
 import os
 
-class DBConnection:
+class DBConnectionMetaClassSingleton(type):
+
+    _instances = {}
+    _lock: Lock = Lock()
+
+    def __call__(self, *args, **kwargs):
+        self._lock.acquire()
+        if self not in self._instances:
+            instance = super().__call__(*args, **kwargs)
+            self._instances[self] = instance
+        self._lock.release()
+        return self._instances[self]
+
+class DBConnection(metaclass=DBConnectionMetaClassSingleton):
 
     def __init__(self):
         self.connection = None

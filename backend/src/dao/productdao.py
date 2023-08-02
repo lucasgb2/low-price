@@ -14,6 +14,9 @@ class ProductDAO(BaseDAO):
         else:
             return None
 
+    async def get_product_by_ncm(self, ncm: str) -> Product:
+        return await self.collection().find(self.q('ncm', ncm)).to_list(10)
+
     async def get_product_all(self):
         return await self.collection().find().to_list(1000)
 

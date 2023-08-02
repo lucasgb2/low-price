@@ -1,4 +1,4 @@
-from pydantic import BaseModel, validator, Field
+from pydantic import BaseModel, validator, Field, field_validator
 from typing import Optional
 from gtin.validator import is_valid_GTIN
 from uuid import UUID, uuid4
@@ -11,17 +11,19 @@ class Product(BaseModel):
     ncm: str = Optional[str]
     ncmDescription: str = Optional[str]
     linkimage: str = Optional[str]
-    pricemax: Optional[Price]
-    pricemin: Optional[Price]
+    contrib: int = 0
+    pricemax: Optional[Price] = None
+    pricemin: Optional[Price] = None
 
     def to_id(self):
         return self.id.urn[9:]
 
     class Config:
-        allow_population_by_field_name = True
+        populate_by_name = True
         arbitrary_types_allowed = True
+        exclude = {"pricemax", "pricemin"}
 
-    @validator('gtin')
+    @field_validator('gtin')
     def gtin_validator(cls, v):
         if not is_valid_GTIN(v):
             raise ValueError(f'The GTIN code ({v}) not is valid.')

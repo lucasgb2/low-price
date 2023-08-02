@@ -6,14 +6,13 @@ from datetime import datetime
 
 class PriceBusiness:
 
-    def convert_moment_human(self, price: Price) -> Price:
-        price.moment_human = humanize.naturaldelta(datetime.now() - price.moment)
-        return price
 
     async def save(self, price: Price):
-        price = self.convert_moment_human(price)
         saved = await PriceDAO.factory().save_price(price)
         return saved
+
+    async def get_prices_by_id_product(self, id_product: str):
+        return await PriceDAO.factory().get_all_price_by_id_product(id_product)
 
     @classmethod
     def factory(self):
